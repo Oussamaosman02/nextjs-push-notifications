@@ -1,8 +1,55 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
+  const PUBLIC =
+    "BMsaFep-L8BRG2TfiJguREIF-q5w8GhbjN61f21sH5qx32vfYS5dN15hvRiw_W0qji6vTmNIsffd5T68U4s5pHs";
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  const subscription = async () => {
+    await navigator.serviceWorker.register("/sw.js", {
+      scope: "/",
+    });
+
+    await navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+      const options = {
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(PUBLIC),
+      };
+      serviceWorkerRegistration.pushManager.subscribe(options).then(
+        (pushSubscription) => {
+          fetch("/api/subscription", {
+            method: "POST",
+            body: JSON.stringify(pushSubscription),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          localStorage.setItem("ps", JSON.stringify(pushSubscription));
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
+    });
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -12,43 +59,23 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
+        <div>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              subscription();
+            }}
           >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            Quiero recibr notificaciones
+          </button>
+        </div>
+        <br/>
+        <hr/>
+        <br/>
+        <div>
+          <Link href="/admini">
+            <button>Admini</button>
+          </Link>
         </div>
       </main>
 
@@ -58,12 +85,12 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <span className={styles.logo}>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
-  )
+  );
 }
