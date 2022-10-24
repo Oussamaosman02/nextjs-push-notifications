@@ -82,9 +82,7 @@ export default function Home() {
             onClick={async (e) => {
               e.preventDefault();
               await subscription();
-              setInterval(() => {
-                subscription();
-              }, 1000);
+              await subscription();
             }}
           >
             Quiero recibr notificaciones
