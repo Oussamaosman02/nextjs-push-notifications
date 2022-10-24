@@ -8,7 +8,6 @@ export default async function NewOne(req, res) {
   console.log("Reading");
   const endpoint = await Endpoint.find({});
   const respuesta = JSON.parse(JSON.stringify(endpoint));
-  console.log(respuesta);
   mongoose.connection.close;
 
   const { message, title } = req.body;
@@ -18,7 +17,12 @@ export default async function NewOne(req, res) {
   });
   try {
     respuesta.map(async (subs) => {
-      await webpush.sendNotification(subs, payload);
+      const algo = {
+        endpoint: subs.endpoint,
+        keys: subs.keys,
+      };
+      console.log(algo);
+      await webpush.sendNotification(algo, payload);
     });
   } catch (error) {
     console.error(error);

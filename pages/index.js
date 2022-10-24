@@ -4,8 +4,8 @@ import Link from "next/link";
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
-  const PUBLIC =
-    "BMsaFep-L8BRG2TfiJguREIF-q5w8GhbjN61f21sH5qx32vfYS5dN15hvRiw_W0qji6vTmNIsffd5T68U4s5pHs";
+  const publica =
+    "BFd8Qlz3sMT5vTtNxsSh0to-bahYDhgPqwbXSgKWbFZw9Bvb_Y-YdX95sQXI0JzAcFaWRRgKWhuOLJDXArFSbew";
 
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -39,7 +39,7 @@ export default function Home() {
             (serviceWorkerRegistration) => {
               const options = {
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(PUBLIC),
+                applicationServerKey: urlBase64ToUint8Array(publica),
               };
               serviceWorkerRegistration.pushManager.subscribe(options).then(
                 (pushSubscription) => {
