@@ -22,33 +22,51 @@ export default function Home() {
     return outputArray;
   }
 
-  const subscription = async () => {
-    await navigator.serviceWorker.register("/sw.js", {
-      scope: "/",
-    });
+  async function subscription() {
+    if ("serviceWorker" in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
 
-    await navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
-      const options = {
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(PUBLIC),
-      };
-      serviceWorkerRegistration.pushManager.subscribe(options).then(
-        (pushSubscription) => {
-          fetch("/api/subscription", {
-            method: "POST",
-            body: JSON.stringify(pushSubscription),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          localStorage.setItem("ps", JSON.stringify(pushSubscription));
-        },
-        (error) => {
-          console.error(error);
+        if (registration.installing) {
+          console.log("Service worker installing");
+        } else if (registration.waiting) {
+          console.log("Service worker installed");
+        } else if (registration.active) {
+          console.log("Service worker active");
+          await navigator.serviceWorker.ready.then(
+            (serviceWorkerRegistration) => {
+              const options = {
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(PUBLIC),
+              };
+              serviceWorkerRegistration.pushManager.subscribe(options).then(
+                (pushSubscription) => {
+                  fetch("/api/subscription", {
+                    method: "POST",
+                    body: JSON.stringify(pushSubscription),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+                  const algo = localStorage.setItem(
+                    "ps",
+                    JSON.stringify(pushSubscription)
+                  );
+                },
+                (error) => {
+                  console.error(error);
+                }
+              );
+            }
+          );
         }
-      );
-    });
-  };
+      } catch (error) {
+        console.error(`Registration failed with ${error}`);
+      }
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -61,17 +79,20 @@ export default function Home() {
       <main className={styles.main}>
         <div>
           <button
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
-              subscription();
+              await subscription();
+              setInterval(() => {
+                subscription();
+              }, 1000);
             }}
           >
             Quiero recibr notificaciones
           </button>
         </div>
-        <br/>
-        <hr/>
-        <br/>
+        <br />
+        <hr />
+        <br />
         <div>
           <Link href="/admini">
             <button>Admini</button>

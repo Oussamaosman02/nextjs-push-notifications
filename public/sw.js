@@ -7,5 +7,12 @@ self.addEventListener("push", (e) => {
   self.registration.showNotification(data.title, {
     body: data.message,
     icon: "https://cdn0.iconfinder.com/data/icons/flat-round-system/512/archlinux-512.png",
+    actions: [
+      {
+        action: "coffee-action",
+        title: "Coffee",
+        icon: "/favicon.ico",
+      },
+    ],
   });
 });

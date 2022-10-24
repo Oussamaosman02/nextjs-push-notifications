@@ -1,32 +1,29 @@
 import React, { useRef } from "react";
 import styles from "../styles/Home.module.css";
 
-export default function Admini() {
+export default function Admin() {
   const texto = useRef();
   const mens = useRef();
   async function handle() {
     const title = texto.current.value;
     const message = mens.current.value;
-    const ext = localStorage.getItem("ps");
-    if (ext) {
-      fetch("/api/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: message,
-          title: title,
-          ps: ext,
-        }),
-      });
-    } else {
-      console.error("No hay endpoint");
-    }
+
+    fetch("/api/all", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: message,
+        title: title,
+      }),
+    });
   }
 
   return (
     <div className={styles.algo}>
+      <h1>A todos</h1>
+      <br />
       <h2>Titulo de la notificación</h2>
       <input ref={texto} type="text" placeholder="titulo" />
       <br />
